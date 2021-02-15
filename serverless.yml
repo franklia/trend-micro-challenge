@@ -25,6 +25,9 @@ provider:
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
 
+plugins:
+  - serverless-offline
+
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -59,8 +62,16 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  getSecurityGroups:
+    handler: handler.getSecurityGroups
+    events:
+      - httpApi:
+          path: /getSecurityGroups
+          method: get
+          response:
+          headers:
+            Content-Type: application/vnd.api+json
+            Cache-Control: "'max-age=120'"
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
