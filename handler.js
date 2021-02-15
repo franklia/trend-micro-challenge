@@ -16,7 +16,9 @@ module.exports.getSecurityGroups = async (event) => {
     const response = await ec2.describeSecurityGroups(params).promise();
     console.log('response: ', response);
     // I'm returning the group names only for security reasons since I'm new to serverless and
-    // can't be sure of all the security precautions required to protect my data
+    // can't be sure of all the security precautions required to protect my data, but if you
+    // want to return all data, comment out the line below and enter `response.SecurityGroups`
+    // inside JSON.stringify on the 4th line below
     const securityGroups = response.SecurityGroups.map((group) => group.GroupName);
     return {
       statusCode: 200,

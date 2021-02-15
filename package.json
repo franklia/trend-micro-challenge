@@ -21,6 +21,8 @@
     "dotenv": "^8.2.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.12.16",
+    "aws-sdk-mock": "^5.1.0",
     "serverless-offline": "^6.8.0"
   }
 }
