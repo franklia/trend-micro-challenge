@@ -1,33 +1,35 @@
 'use strict';
-const AWS = require('aws-sdk');
+const SecurityGroups = require('./classes/securityGroups');
+const confirmEnvVars = require('./helpers/confirmEnvVars');
 require('dotenv').config();
 
-AWS.config.update({ region: 'us-east-1' });
-const ec2 = new AWS.EC2();
+const securityGroups = new SecurityGroups();
 
-module.exports.getSecurityGroups = async (event) => {
-  const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
-
-  const params = {
-    GroupIds: [process.env.AWS_SECURITY_GROUP_ID_1, process.env.AWS_SECURITY_GROUP_ID_2],
-  };
+module.exports.getSecurityGroups = async (event, context, callback) => {
+  /* 
+    For the purposes of this tech challenge, I am stipulating that the number of security
+    groups will always be known for this lambda function. They may increase or decrease over
+    time, but they will always be known and entered below. I have written the tests with
+    that logic in mind.
+  */
+  const envVars = ['AWS_SECURITY_GROUP_ID_1', 'AWS_SECURITY_GROUP_ID_2'];
 
   try {
-    const response = await ec2.describeSecurityGroups(params).promise();
-    console.log('response: ', response);
-    // I'm returning the group names only for security reasons since I'm new to serverless and
-    // can't be sure of all the security precautions required to protect my data, but if you
-    // want to return all data, comment out the line below and enter `response.SecurityGroups`
-    // inside JSON.stringify on the 4th line below
-    const securityGroups = response.SecurityGroups.map((group) => group.GroupName);
-    return {
-      statusCode: 200,
-      body: JSON.stringify(securityGroups),
-    };
+    // Confirm that id's exist, if not return info about ommitted env vars
+    const ommitted = confirmEnvVars(process.env, envVars);
+
+    if (ommitted.length) {
+      const envVars = ommitted.join(', ');
+      return `The following environment variables are missing: ${envVars}`;
+    }
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ 'Error: ': err }),
-    };
+    console.log('Error: ', err);
+    return `The following error occurred: ${err}`;
   }
+
+  /*
+    Extract business logic into a separate function to make testing easier, and to avoid
+    being bound to the FaaS provider
+  */
+  return securityGroups.listSecurityGroups(envVars);
 };

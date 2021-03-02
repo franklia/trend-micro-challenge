@@ -4,7 +4,7 @@
   "description": "A technical challenge for a role at Trend Micro",
   "main": "handler.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --watchAll --config ./jest.config.js"
   },
   "repository": {
     "type": "git",
